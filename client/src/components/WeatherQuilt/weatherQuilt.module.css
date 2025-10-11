@@ -1,0 +1,408 @@
+.container {
+    padding: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.citySelector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.citySelector label {
+    font-weight: 600;
+    color: #333;
+}
+
+.cityDropdown {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 2px solid #2196F3;
+    border-radius: 6px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 180px;
+}
+
+.cityDropdown:hover {
+    background-color: #E3F2FD;
+}
+
+.cityDropdown:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.viewModeToggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.toggleButton {
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    border: 2px solid #2196F3;
+    background-color: white;
+    color: #2196F3;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggleButton:hover {
+    background-color: #E3F2FD;
+}
+
+.toggleButton.active {
+    background-color: #2196F3;
+    color: white;
+}
+
+.datePicker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.datePicker label {
+    font-weight: 500;
+    color: #555;
+}
+
+.datePicker input {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.datePicker input:hover {
+    border-color: #2196F3;
+}
+
+.datePicker input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.yearInput {
+    width: 100px;
+    text-align: center;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 80px);
+    gap: 3px;
+    padding: 20px;
+    background-color: #d4d4d4;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.yearGrid {
+    grid-template-columns: repeat(auto-fit, 30px);
+    gap: 2px;
+    background-color: #d4d4d4;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+    width: 100%;
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #D32F2F;
+    background-color: #FFEBEE;
+    border-radius: 8px;
+    margin: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.legendsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin: 30px auto;
+    max-width: 90vw;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.legend {
+    padding: 25px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 400px;
+    max-width: 600px;
+}
+
+.legend h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 20px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.legendDescription {
+    margin: 0 0 20px 0;
+    color: #666;
+    font-size: 13px;
+    text-align: center;
+    font-style: italic;
+}
+
+.gradientBar {
+    height: 40px;
+    border-radius: 6px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.temperatureMarkers {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.markerLine {
+    width: 2px;
+    height: 8px;
+    background-color: #666;
+    margin-bottom: 4px;
+}
+
+.markerLabel {
+    font-size: 11px;
+    color: #555;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.legendLabels {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.legendLabels span {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+.quiltInfo {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 16px;
+    color: #555;
+    font-weight: 500;
+    width: 100%;
+}
+
+.quiltsContainer {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 95vw;
+}
+
+.quiltSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 300px;
+}
+
+.quiltTitle {
+    margin: 0 0 15px 0;
+    font-size: 22px;
+    color: #333;
+    font-weight: 600;
+    text-align: center;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background-color: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 24px;
+    text-align: center;
+}
+
+.closeButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.closeButton:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.detailRow:hover {
+    background-color: #e9ecef;
+}
+
+.label {
+    font-weight: 600;
+    color: #555;
+    font-size: 16px;
+}
+
+.value {
+    font-size: 18px;
+    color: #2196F3;
+    font-weight: 700;
+}
+
+.patchExplanation {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.patchExplanation p {
+    margin: 8px 0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.patchExplanation p:first-child {
+    margin-top: 0;
+    color: #333;
+    font-size: 16px;
+}
