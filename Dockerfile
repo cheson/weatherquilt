@@ -1,5 +1,5 @@
 # Multi-stage build for production
-FROM node:18-alpine AS frontend-build
+FROM node:20-alpine AS frontend-build
 
 # Build React frontend
 WORKDIR /app/client
@@ -42,7 +42,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
+    CMD curl -f http://localhost:8000/healthcheck || exit 1
 
 # Command to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

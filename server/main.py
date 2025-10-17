@@ -17,7 +17,9 @@ Request body:
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi_utils.tasks import repeat_every
+from fastapi.staticfiles import StaticFiles
 
 from db import crud, models, schema
 from db.database import SessionLocal, engine
@@ -40,6 +42,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files from React build at root
+app.mount("/static", StaticFiles(directory="static/static"), name="react-static")
+
+# Serve React index.html for root and all non-API routes
+@app.get("/")
+async def serve_react_root():
+    return FileResponse("static/index.html")
+
 def get_db():
     db = SessionLocal()
     try:
@@ -51,9 +61,9 @@ def get_db():
 def startup():
     print("starting up app")
 
-@app.get("/")
+@app.get("/healthcheck")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Healthy!"}
 
 @app.post("/weatherByDay")
 async def weatherByDay(data: schema.WeatherByDayCreate):
