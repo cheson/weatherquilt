@@ -1,7 +1,7 @@
 import styles from './patch.module.css'
 
 function Patch(props) {
-    const { color, date, minTemp, maxTemp, precipitation, viewMode, onClick, minColor, maxColor, displayMode } = props;
+    const { color, date, minTemp, maxTemp, precipitation, viewMode, onClick, minColor, maxColor, displayMode, isHovered, onMouseEnter, onMouseLeave } = props;
     const isYearView = viewMode === 'year';
     const avgTemp = ((parseFloat(maxTemp) + parseFloat(minTemp)) / 2).toFixed(1);
     
@@ -22,10 +22,12 @@ function Patch(props) {
     
     return (
         <div 
-            className={`${styles.patch} ${isYearView ? styles.yearPatch : ''}`}
+            className={`${styles.patch} ${isYearView ? styles.yearPatch : ''} ${isHovered ? styles.hovered : ''}`}
             style={displayMode ? { backgroundColor } : {}}
             title={tooltipText}
             onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
         >
             {!displayMode && (
                 <>

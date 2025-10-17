@@ -17,13 +17,15 @@
     height: 30px;
 }
 
-.patch:hover {
+.patch:hover,
+.patch.hovered {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 10;
 }
 
-.yearPatch:hover {
+.yearPatch:hover,
+.yearPatch.hovered {
     transform: scale(1.2);
 }
 

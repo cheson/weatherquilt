@@ -609,11 +609,11 @@ async def fetch_city_weather(
 
 @app.post("/weather/fetch-all-cities")
 async def fetch_all_cities_weather(
-    start_year: int = Query(default=2020),
+    start_year: int = Query(default=2000),
     db: Session = Depends(get_db)
 ):
     """
-    Fetch weather data for all US state capitals
+    Fetch weather data for all US state capitals from start_year to present
     Warning: This will take a long time!
     """
     results = {}

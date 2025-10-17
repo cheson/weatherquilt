@@ -7,7 +7,7 @@ import cx from 'classnames';
 
 
 function WeatherQuilt(props) {
-    const [viewMode, setViewMode] = useState('month'); // 'month' or 'year'
+    const [viewMode, setViewMode] = useState('year'); // 'month' or 'year'
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedCity, setSelectedCity] = useState('Anchorage, AK');
     const [availableCities, setAvailableCities] = useState([]);
@@ -15,6 +15,8 @@ function WeatherQuilt(props) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [selectedPatch, setSelectedPatch] = useState(null);
+    const [useDynamicRange, setUseDynamicRange] = useState(false);
+    const [hoveredIndex, setHoveredIndex] = useState(null);
 
     // Fetch available cities on component mount
     useEffect(() => {
@@ -131,49 +133,81 @@ function WeatherQuilt(props) {
         return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     };
 
-    // Map temperature to color with granular 1-degree gradients
-    const getColorForTemp = (temp) => {
-        if (temp === null || temp === undefined) return '#ccc'; // Gray for missing data
-        
-        // Define color stops [temperature, color]
-        const colorStops = [
-            [-20, '#0d1b4d'], // Very deep blue (extreme cold)
-            [-10, '#1a237e'], // Deep blue
-            [0, '#1565C0'],   // Dark blue
-            [10, '#1976D2'],  // Blue
-            [20, '#2196F3'],  // Light blue
-            [30, '#42A5F5'],  // Lighter blue
-            [40, '#64B5F6'],  // Very light blue
-            [50, '#81C784'],  // Green
-            [60, '#AED581'],  // Light green
-            [65, '#DCE775'],  // Yellow-green
-            [70, '#FFF176'],  // Light yellow
-            [75, '#FFD54F'],  // Yellow
-            [80, '#FFB74D'],  // Light orange
-            [85, '#FF9800'],  // Orange
-            [90, '#F57C00'],  // Dark orange
-            [95, '#E64A19'],  // Red-orange
-            [100, '#D32F2F'], // Red
-            [110, '#B71C1C']  // Dark red (extreme heat)
-        ];
-        
-        // Find the two color stops to interpolate between
-        for (let i = 0; i < colorStops.length - 1; i++) {
-            const [temp1, color1] = colorStops[i];
-            const [temp2, color2] = colorStops[i + 1];
-            
-            if (temp >= temp1 && temp <= temp2) {
-                // Calculate interpolation factor (0 to 1)
-                const factor = (temp - temp1) / (temp2 - temp1);
-                return interpolateColor(color1, color2, factor);
-            }
+    // Calculate temperature range from current data
+    const getTempRange = () => {
+        if (!weatherData || weatherData.length === 0) {
+            return { minTemp: -20, maxTemp: 110 };
         }
         
-        // Handle edge cases
-        if (temp < colorStops[0][0]) return colorStops[0][1]; // Colder than coldest
-        if (temp > colorStops[colorStops.length - 1][0]) return colorStops[colorStops.length - 1][1]; // Hotter than hottest
+        let minTemp = Infinity;
+        let maxTemp = -Infinity;
         
-        return '#ccc'; // Fallback
+        weatherData.forEach(day => {
+            const avgTemp = (parseFloat(day.maxTemp) + parseFloat(day.minTemp)) / 2;
+            if (avgTemp < minTemp) minTemp = avgTemp;
+            if (avgTemp > maxTemp) maxTemp = avgTemp;
+        });
+        
+        // Add a small buffer to the range
+        const buffer = (maxTemp - minTemp) * 0.05;
+        minTemp = Math.floor(minTemp - buffer);
+        maxTemp = Math.ceil(maxTemp + buffer);
+        
+        return { minTemp, maxTemp };
+    };
+
+    // Map temperature to color with granular 1-degree gradients
+    const getColorForTemp = (temp, useDataRange = false) => {
+        if (temp === null || temp === undefined) return '#ccc'; // Gray for missing data
+        
+        // Base color stops (full spectrum colors)
+        const baseColors = [
+            '#0d1b4d', // Very deep blue (extreme cold)
+            '#1a237e', // Deep blue
+            '#1565C0', // Dark blue
+            '#1976D2', // Blue
+            '#2196F3', // Light blue
+            '#42A5F5', // Lighter blue
+            '#64B5F6', // Very light blue
+            '#81C784', // Green
+            '#AED581', // Light green
+            '#DCE775', // Yellow-green
+            '#FFF176', // Light yellow
+            '#FFD54F', // Yellow
+            '#FFB74D', // Light orange
+            '#FF9800', // Orange
+            '#F57C00', // Dark orange
+            '#E64A19', // Red-orange
+            '#D32F2F', // Red
+            '#B71C1C'  // Dark red (extreme heat)
+        ];
+        
+        let minRange, maxRange;
+        
+        if (useDataRange) {
+            const range = getTempRange();
+            minRange = range.minTemp;
+            maxRange = range.maxTemp;
+        } else {
+            minRange = -20;
+            maxRange = 110;
+        }
+        
+        // Normalize temperature to 0-1 range
+        const normalized = (temp - minRange) / (maxRange - minRange);
+        const clampedNormalized = Math.max(0, Math.min(1, normalized));
+        
+        // Map normalized value to color stops
+        const colorIndex = clampedNormalized * (baseColors.length - 1);
+        const lowerIndex = Math.floor(colorIndex);
+        const upperIndex = Math.ceil(colorIndex);
+        
+        if (lowerIndex === upperIndex) {
+            return baseColors[lowerIndex];
+        }
+        
+        const factor = colorIndex - lowerIndex;
+        return interpolateColor(baseColors[lowerIndex], baseColors[upperIndex], factor);
     };
 
     // Map precipitation to color
@@ -221,16 +255,38 @@ function WeatherQuilt(props) {
     // Generate gradient bar for legend (showing color for each degree in range)
     const generateGradientBar = () => {
         const gradientStops = [];
-        for (let temp = -20; temp <= 110; temp += 2) {
-            const color = getColorForTemp(temp);
-            const position = ((temp + 20) / 130) * 100; // Normalize to 0-100%
+        const range = useDynamicRange ? getTempRange() : { minTemp: -20, maxTemp: 110 };
+        const { minTemp, maxTemp } = range;
+        const step = (maxTemp - minTemp) / 50; // 50 steps for smooth gradient
+        
+        for (let temp = minTemp; temp <= maxTemp; temp += step) {
+            const color = getColorForTemp(temp, useDynamicRange);
+            const position = ((temp - minTemp) / (maxTemp - minTemp)) * 100; // Normalize to 0-100%
             gradientStops.push(`${color} ${position}%`);
         }
         return `linear-gradient(to right, ${gradientStops.join(', ')})`;
     };
     
     // Key temperature markers for the legend
-    const temperatureMarkers = [-20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+    const getTemperatureMarkers = () => {
+        if (!useDynamicRange) {
+            return [-20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+        }
+        
+        const range = getTempRange();
+        const { minTemp, maxTemp } = range;
+        const span = maxTemp - minTemp;
+        const numMarkers = Math.min(14, Math.max(6, Math.floor(span / 5)));
+        const step = span / (numMarkers - 1);
+        
+        const markers = [];
+        for (let i = 0; i < numMarkers; i++) {
+            markers.push(Math.round(minTemp + step * i));
+        }
+        return markers;
+    };
+    
+    const temperatureMarkers = getTemperatureMarkers();
     
     // Generate gradient bar for precipitation legend
     const generatePrecipGradientBar = () => {
@@ -291,7 +347,7 @@ function WeatherQuilt(props) {
                                 type="month" 
                                 value={getInputValue()}
                                 onChange={handleDateChange}
-                                min="2020-01"
+                                min="2000-01"
                                 max="2025-12"
                             />
                         </>
@@ -303,7 +359,7 @@ function WeatherQuilt(props) {
                                 type="number" 
                                 value={getInputValue()}
                                 onChange={handleDateChange}
-                                min="2020"
+                                min="2000"
                                 max="2025"
                                 className={styles.yearInput}
                             />
@@ -315,7 +371,30 @@ function WeatherQuilt(props) {
             <div className={styles.legendsContainer}>
                 <div className={styles.legend}>
                     <h3>🌡️ Temperature Scale</h3>
-                    <p className={styles.legendDescription}>Average Daily Temperature (°F)</p>
+                    <p className={styles.legendDescription}>
+                        Average Daily Temperature (°F)
+                        {useDynamicRange && weatherData.length > 0 && (
+                            <span> - Dynamic Range ({getTempRange().minTemp}°F to {getTempRange().maxTemp}°F)</span>
+                        )}
+                    </p>
+                    
+                    <div className={styles.tempRangeToggle}>
+                        <button 
+                            className={cx(styles.toggleButton, styles.legendToggleButton, { [styles.active]: !useDynamicRange })}
+                            onClick={() => setUseDynamicRange(false)}
+                            title="Use full temperature range (-20°F to 110°F)"
+                        >
+                            Fixed Range
+                        </button>
+                        <button 
+                            className={cx(styles.toggleButton, styles.legendToggleButton, { [styles.active]: useDynamicRange })}
+                            onClick={() => setUseDynamicRange(true)}
+                            title="Use data min/max temperatures for full color spectrum"
+                        >
+                            Dynamic Range
+                        </button>
+                    </div>
+                    
                     <div className={styles.gradientBar} style={{ background: generateGradientBar() }}></div>
                     <div className={styles.temperatureMarkers}>
                         {temperatureMarkers.map((temp, index) => (
@@ -380,7 +459,7 @@ function WeatherQuilt(props) {
                             <div className={cx(styles.grid, { [styles.yearGrid]: viewMode === 'year' })}>
                                 {weatherData.map((day, index) => {
                                     const avgTemp = (parseFloat(day.maxTemp) + parseFloat(day.minTemp)) / 2;
-                                    const tempColor = getColorForTemp(avgTemp);
+                                    const tempColor = getColorForTemp(avgTemp, useDynamicRange);
                                     const precipColor = getColorForPrecip(day.precipitation);
                                     const date = new Date(day.date);
                                     
@@ -395,6 +474,9 @@ function WeatherQuilt(props) {
                                             precipitation={day.precipitation}
                                             viewMode={viewMode}
                                             displayMode="temperature"
+                                            isHovered={hoveredIndex === index}
+                                            onMouseEnter={() => setHoveredIndex(index)}
+                                            onMouseLeave={() => setHoveredIndex(null)}
                                             onClick={() => handlePatchClick({
                                                 date: date.toLocaleDateString('en-US', { 
                                                     weekday: 'long', 
@@ -419,7 +501,7 @@ function WeatherQuilt(props) {
                             <div className={cx(styles.grid, { [styles.yearGrid]: viewMode === 'year' })}>
                                 {weatherData.map((day, index) => {
                                     const avgTemp = (parseFloat(day.maxTemp) + parseFloat(day.minTemp)) / 2;
-                                    const tempColor = getColorForTemp(avgTemp);
+                                    const tempColor = getColorForTemp(avgTemp, useDynamicRange);
                                     const precipColor = getColorForPrecip(day.precipitation);
                                     const date = new Date(day.date);
                                     
@@ -434,6 +516,9 @@ function WeatherQuilt(props) {
                                             precipitation={day.precipitation}
                                             viewMode={viewMode}
                                             displayMode="precipitation"
+                                            isHovered={hoveredIndex === index}
+                                            onMouseEnter={() => setHoveredIndex(index)}
+                                            onMouseLeave={() => setHoveredIndex(null)}
                                             onClick={() => handlePatchClick({
                                                 date: date.toLocaleDateString('en-US', { 
                                                     weekday: 'long', 

@@ -14,6 +14,8 @@ def get_db():
 SEED_DATA_FILENAME = "./noaa_anchorage.json"
 
 if __name__ == "__main__":
+    # prod step: shouldn't need to drop and create all, then load all the data everytime the server is spun up.
+    # also will be migrating away from the local sqlite db 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 

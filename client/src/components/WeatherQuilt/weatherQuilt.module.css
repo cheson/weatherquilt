@@ -59,6 +59,18 @@
     margin-bottom: 20px;
 }
 
+.tempRangeToggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.legendToggleButton {
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+}
+
 .toggleButton {
     padding: 10px 24px;
     font-size: 15px;

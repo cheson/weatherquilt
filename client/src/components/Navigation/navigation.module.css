@@ -1,0 +1,126 @@
+.nav {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navContent {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+}
+
+.brandLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.brandLink:hover {
+    transform: scale(1.05);
+}
+
+.brandIcon {
+    font-size: 2rem;
+}
+
+.brandText {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+}
+
+.navLinks {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.navLink {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.navLink:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.navLink.active {
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
+.navLink.active::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navContent {
+        padding: 0 15px;
+        height: 60px;
+    }
+
+    .brandLink {
+        font-size: 1.2rem;
+    }
+
+    .brandIcon {
+        font-size: 1.5rem;
+    }
+
+    .navLinks {
+        gap: 5px;
+    }
+
+    .navLink {
+        padding: 8px 15px;
+        font-size: 1rem;
+    }
+
+    .navLink.active::after {
+        left: 15px;
+        right: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brandText {
+        display: none;
+    }
+
+    .navLink {
+        padding: 6px 12px;
+        font-size: 0.95rem;
+    }
+}
+
